@@ -1,0 +1,1312 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>English Practice</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root {
+  --bg: #f7f6f2;
+  --card: #ffffff;
+  --text: #1f2328;
+  --muted: #6a6f76;
+  --line: #e2e0d8;
+  --accent: #2f5d8a;
+  --accent-soft: #e6eef6;
+  --ok: #2e7d4f;
+  --ok-soft: #e4f3ea;
+  --bad: #b23b3b;
+  --bad-soft: #f8e6e6;
+  --note: #8a6a1f;
+  --note-soft: #faf2dc;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #16181b;
+    --card: #1f2226;
+    --text: #e6e6e3;
+    --muted: #9aa0a6;
+    --line: #33373d;
+    --accent: #7fb0e0;
+    --accent-soft: #23303d;
+    --ok: #6cc595;
+    --ok-soft: #1f3328;
+    --bad: #e57b7b;
+    --bad-soft: #3a2224;
+    --note: #e0c070;
+    --note-soft: #332c1a;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #16181b;
+  --card: #1f2226;
+  --text: #e6e6e3;
+  --muted: #9aa0a6;
+  --line: #33373d;
+  --accent: #7fb0e0;
+  --accent-soft: #23303d;
+  --ok: #6cc595;
+  --ok-soft: #1f3328;
+  --bad: #e57b7b;
+  --bad-soft: #3a2224;
+  --note: #e0c070;
+  --note-soft: #332c1a;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.wrap { max-width: 720px; margin: 0 auto; padding: 20px 16px 48px; }
+h1 { font-size: 22px; margin: 0 0 4px; }
+.sub { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+select, button, input {
+  font: inherit;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+button { cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button:disabled { opacity: .5; cursor: default; }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 16px 0; }
+.tabs button.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px;
+}
+.prompt { font-size: 22px; font-weight: 600; margin: 4px 0 12px; }
+.hint { color: var(--muted); font-size: 14px; }
+.progress { color: var(--muted); font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; }
+input.answer { width: 100%; font-size: 18px; padding: 10px 12px; margin-bottom: 10px; }
+.feedback { margin-top: 12px; padding: 12px; border-radius: 8px; display: none; }
+.feedback.ok { display: block; background: var(--ok-soft); color: var(--ok); }
+.feedback.bad { display: block; background: var(--bad-soft); color: var(--bad); }
+.feedback .full { color: var(--text); margin-top: 4px; }
+.note { margin-top: 8px; padding: 8px 10px; border-radius: 8px; background: var(--note-soft); color: var(--note); font-size: 14px; }
+.options { display: grid; gap: 8px; }
+.options button { text-align: left; padding: 12px; }
+.options button.right { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+.options button.wrong { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+.flip { min-height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; cursor: pointer; user-select: none; }
+.flip .side { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+.flip .big { font-size: 24px; font-weight: 600; }
+.flip .ex { color: var(--muted); margin-top: 8px; font-style: italic; }
+.actions { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; font-size: 13px; }
+td .n { color: var(--note); font-size: 13px; margin-top: 2px; }
+.hidden-en td.en span, .hidden-en td.en .tr { filter: blur(6px); cursor: pointer; }
+.hidden-en td.en.shown span, .hidden-en td.en.shown .tr { filter: none; }
+.done { text-align: center; }
+.done .score { font-size: 32px; font-weight: 700; margin: 8px 0; }
+.tr { color: var(--muted); font-size: 15px; margin: -6px 0 12px; }
+.feedback .tr { margin: 2px 0 0; }
+td .tr { margin: 2px 0 0; font-size: 13px; }
+button.say { padding: 2px 10px; font-size: 13px; margin-left: 6px; vertical-align: middle; }
+.tabs .sep { flex-basis: 100%; height: 0; }
+.tabs .label { color: var(--muted); font-size: 13px; align-self: center; margin-right: 2px; }
+.pairs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.pairs .col { display: grid; gap: 8px; align-content: start; }
+.tile { text-align: left; padding: 10px; min-height: 48px; font-size: 15px; transition: background .15s; }
+.tile.sel { background: var(--accent-soft); border-color: var(--accent); }
+.tile.right { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); opacity: .7; }
+.tile.wrong { background: var(--bad-soft); border-color: var(--bad); }
+.slots { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0 14px; min-height: 40px; }
+.slot { width: 30px; height: 38px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 600; }
+.gap { width: 14px; }
+.letters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.letter { width: 40px; height: 44px; padding: 0; font-size: 20px; font-weight: 600; }
+.shake { animation: shake .35s; }
+@keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.blitz-ru { text-align: center; font-size: 20px; margin: 4px 0 18px; color: var(--accent); }
+.blitz-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.blitz-buttons button { padding: 16px; font-size: 18px; }
+.badge { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 10px; background: var(--bad-soft); color: var(--bad); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>English Practice</h1>
+  <div class="sub">Слова и конструкции с уроков. Транскрипция британская. Кнопка «Слушать» произносит слово голосом браузера. Ошибки запоминаются в этом браузере, их можно повторить отдельно.</div>
+
+  <div class="row">
+    <label for="lesson">Урок:</label>
+    <select id="lesson"></select>
+    <label><input type="checkbox" id="onlyMistakes"> только ошибки <span id="mistakeCount" class="badge"></span></label>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button data-mode="type" class="active">RU → EN (писать)</button>
+    <button data-mode="choice">EN → RU (выбор)</button>
+    <button data-mode="cloze">Вставь слово</button>
+    <button data-mode="cards">Карточки</button>
+    <button data-mode="list">Список</button>
+    <span class="sep"></span>
+    <span class="label">Игры:</span>
+    <button data-mode="pairs">Пары</button>
+    <button data-mode="scramble">Собери слово</button>
+    <button data-mode="blitz">Блиц 60 с</button>
+    <button data-mode="listen">На слух</button>
+  </div>
+
+  <div id="app"></div>
+</div>
+
+<script>
+// Чтобы добавить новый урок, допишите объект в LESSONS.
+// en — допустимые ответы (первый показывается как основной), tr — транскрипция, note — пояснение или исправление.
+const LESSONS = [
+  {
+    id: "2026-10-19",
+    title: "Урок 19.10.2026",
+    words: [
+      { en: ["evenly", "uniformly"], tr: "/ˈiːvənli / ˈjuːnɪfɔːmli/", ru: "равномерно, однородно", ex: "Spread the paint evenly." },
+      { en: ["uniformity"], tr: "/ˌjuːnɪˈfɔːməti/", ru: "однородность", ex: "The uniformity of the results surprised us." },
+      { en: ["meticulous", "scrupulous"], tr: "/məˈtɪkjələs / ˈskruːpjələs/", ru: "тщательный, кропотливый, скрупулёзный", ex: "She is meticulous about details.", note: "Произношение: ударение на второй слог — /məˈtɪkjələs/, «мэТИкьюлэс»." },
+      { en: ["to quit", "quit"], tr: "/kwɪt/", ru: "бросить, прекратить что-то делать", ex: "I quit smoking last year.", note: "Неправильный глагол: quit – quit – quit. Правильно «I quit smoking», не «I quited»." },
+      { en: ["organised and structured", "organized and structured"], tr: "/ˈɔːɡənaɪzd ənd ˈstrʌktʃəd/", ru: "организованный и структурированный", ex: "My thoughts were organised and structured.", note: "organised — британское написание, organized — американское. Оба верны." },
+      { en: ["at that time", "during that time"], tr: "/ət ˈðæt ˈtaɪm / ˈdjʊərɪŋ ˈðæt ˈtaɪm/", ru: "в то время", ex: "At that time I lived in Minsk.", note: "Либо at that time, либо during that time. Вместе during и at не ставятся." },
+      { en: ["mandala drawings", "drawings of mandalas", "mandalas"], tr: "/ˈmændələ ˈdrɔːɪŋz/", ru: "рисунки мандал, мандалы", ex: "I like drawing mandalas." },
+      { en: ["eloquent"], tr: "/ˈeləkwənt/", ru: "красноречивый", ex: "He gave an eloquent speech." },
+      { en: ["distort", "twist", "mess up"], tr: "/dɪˈstɔːt / twɪst / ˌmes ˈʌp/", ru: "искажать, портить", ex: "Don't twist my words.", note: "distort / twist — исказить смысл, слова, факты. mess up — испортить, напортачить (разговорное)." },
+      { en: ["translated books"], tr: "/trænzˈleɪtɪd ˈbʊks/", ru: "переведённые книги", ex: "I mostly read translated books.", note: "translatED books — переведённые книги. translate books — глагол «переводить книги»." },
+      { en: ["to form an opinion", "form an opinion"], tr: "/fɔːm ən əˈpɪnjən/", ru: "сформировать мнение", ex: "I need time to form an opinion." },
+      { en: ["novels", "novel"], tr: "/ˈnɒvəlz/", ru: "романы", ex: "I read novels in the evening.", note: "novel — роман вообще. romance (romance novel) — именно любовный роман." },
+      { en: ["fiction"], tr: "/ˈfɪkʃən/", ru: "художественная литература", ex: "I prefer fiction to non-fiction." },
+      { en: ["non-fiction", "nonfiction"], tr: "/ˌnɒnˈfɪkʃən/", ru: "нехудожественная литература (научно-популярная, документальная)", ex: "Non-fiction helps me learn new things.", note: "non-fiction шире, чем «научпоп»: сюда входят биографии, мемуары, книги по бизнесу. Научно-популярная — popular science." },
+      { en: ["explicitly"], tr: "/ɪkˈsplɪsɪtli/", ru: "явно, чётко, недвусмысленно", ex: "He explicitly said no." },
+      { en: ["different types of relationships"], tr: "/ˈdɪfrənt ˈtaɪps əv rɪˈleɪʃənʃɪps/", ru: "разные виды отношений", ex: "The book describes different types of relationships." },
+      { en: ["productivity"], tr: "/ˌprɒdʌkˈtɪvəti/", ru: "продуктивность", ex: "Sleep affects my productivity." },
+      { en: ["people around you", "surrounding people"], tr: "/ˈpiːpəl əˈraʊnd juː/", ru: "окружающие тебя люди, люди вокруг", ex: "The people around you shape your habits.", note: "people around you звучит естественнее, чем surrounding people." },
+      { en: ["educated"], tr: "/ˈedʒukeɪtɪd/", ru: "образованный", ex: "She is a well-educated woman.", note: "educated — это про образование. «Воспитанный» — well-mannered или polite." },
+      { en: ["it's not that", "it is not that"], tr: "/ɪts ˈnɒt ðæt/", ru: "дело не в том, что", ex: "It's not that I don't like it, I'm just tired.", note: "Не забывайте связку that. Без неё предложение рассыпается на набор слов." },
+      { en: ["psychiatric hospital", "asylum"], tr: "/ˌsaɪkiˈætrɪk ˈhɒspɪtəl / əˈsaɪləm/", ru: "психиатрическая больница", ex: "He worked in a psychiatric hospital.", note: "asylum — устаревшее слово и может звучать грубо. Нейтрально: psychiatric hospital. Произношение: asylum — /əˈsaɪləm/, «эсАйлэм»; psychiatric начинается с /saɪ/, p не читается." },
+      { en: ["to know one's limits", "know one's limits", "to know your limits", "know your limits"], tr: "/nəʊ wʌnz ˈlɪmɪts/", ru: "знать свои пределы", ex: "You should know your limits." },
+      { en: ["boundary", "boundaries"], tr: "/ˈbaʊndəri/", ru: "граница (в том числе личная)", ex: "It's important to set boundaries." },
+      { en: ["to know when to stop", "know when to stop"], tr: "/nəʊ ˈwen tə ˈstɒp/", ru: "знать, когда остановиться", ex: "The key is to know when to stop." },
+      { en: ["to achieve a goal", "achieve a goal"], tr: "/əˈtʃiːv ə ˈɡəʊl/", ru: "достичь цели", ex: "She achieved her goal in a year." },
+      { en: ["to break", "break"], tr: "/breɪk – brəʊk – ˈbrəʊkən/", ru: "ломать", ex: "Be careful, don't break it.", note: "Неправильный глагол: break – broke – broken. «to broke» не бывает: broke — прошедшее время, broken — «сломанный»." },
+      { en: ["broken"], tr: "/ˈbrəʊkən/", ru: "сломанный", ex: "My phone is broken." },
+      { en: ["consist of"], tr: "/kənˈsɪst əv/", ru: "состоять из", ex: "The team consists of five people.", note: "Всегда с of: consists of, не consists from." },
+      { en: ["another"], tr: "/əˈnʌðə/", ru: "другой, ещё один", ex: "I want to find another hobby.", note: "После another — существительное в единственном числе: another hobby, another reason." },
+      { en: ["new people"], tr: "/njuː ˈpiːpəl/", ru: "новые люди", ex: "I like meeting new people.", note: "people уже множественное число. «Peoples» в значении «люди» не говорят." }
+    ],
+    cloze: [
+      { q: "I ___ smoking two years ago.", a: ["quit"], ru: "Я бросила курить два года назад.", note: "quit – quit – quit, без -ed." },
+      { q: "___ that time I lived with my parents.", a: ["at", "during"], ru: "В то время я жила с родителями.", note: "Одно из двух: at или during." },
+      { q: "I mostly read ___ books.", a: ["translated"], ru: "Я в основном читаю переведённые книги." },
+      { q: "It's not ___ I don't want to go, I'm just tired.", a: ["that"], ru: "Дело не в том, что я не хочу идти, я просто устала." },
+      { q: "I dropped my phone and it ___.", a: ["broke"], ru: "Я уронила телефон, и он сломался.", note: "break – broke – broken." },
+      { q: "My laptop is ___, I can't work.", a: ["broken"], ru: "Мой ноутбук сломан, я не могу работать." },
+      { q: "The course consists ___ ten lessons.", a: ["of"], ru: "Курс состоит из десяти уроков." },
+      { q: "I want to find ___ hobby.", a: ["another"], ru: "Я хочу найти ещё одно хобби." },
+      { q: "At the conference I met a lot of new ___.", a: ["people"], ru: "На конференции я познакомилась со многими новыми людьми." },
+      { q: "Spread the cream ___ over the cake.", a: ["evenly", "uniformly"], ru: "Распределите крем равномерно по торту." },
+      { q: "He ___ my words, and everyone misunderstood me.", a: ["twisted", "distorted"], ru: "Он исказил мои слова, и все меня неправильно поняли." },
+      { q: "You need to know your ___.", a: ["limits"], ru: "Нужно знать свои пределы." },
+      { q: "She is very ___: she checks every single detail.", a: ["meticulous", "scrupulous"], ru: "Она очень тщательная: проверяет каждую мелочь." },
+      { q: "It's important to set personal ___.", a: ["boundaries"], ru: "Важно устанавливать личные границы." },
+      { q: "I'd like to ___ an opinion before I decide.", a: ["form"], ru: "Я хочу сформировать мнение, прежде чем решать." },
+      { q: "It took her a year to ___ her goal.", a: ["achieve"], ru: "Ей понадобился год, чтобы достичь цели." },
+      { q: "The rules say it ___: no phones in class.", a: ["explicitly"], ru: "В правилах прямо сказано: никаких телефонов на уроке." },
+      { q: "His speech was so ___ that everyone listened.", a: ["eloquent"], ru: "Его речь была такой красноречивой, что все слушали." },
+      { q: "I prefer ___ — biographies and books about business.", a: ["non-fiction", "nonfiction"], ru: "Я предпочитаю нехудожественную литературу — биографии и книги о бизнесе." },
+      { q: "Good sleep improves my ___.", a: ["productivity"], ru: "Хороший сон повышает мою продуктивность." }
+    ]
+  },
+  {
+    id: "ielts-hobbies",
+    title: "IELTS: Hobbies",
+    words: [
+      { en: ["rewarding hobby"], tr: "/rɪˈwɔːdɪŋ ˈhɒbi/", ru: "хобби, которое приносит удовлетворение", ex: "Gardening is a rewarding hobby: you see the results of your work." },
+      { en: ["skill-based hobby"], tr: "/ˈskɪl beɪst ˈhɒbi/", ru: "хобби, которое развивает навык или талант", ex: "Playing the guitar is a skill-based hobby." },
+      { en: ["time-filler"], tr: "/ˈtaɪm ˌfɪlə/", ru: "занятие, чтобы скоротать время", ex: "Mobile games are just a time-filler for me." },
+      { en: ["to kill time", "kill time"], tr: "/ˌkɪl ˈtaɪm/", ru: "убить время, скоротать время", ex: "I read on the train to kill time.", note: "time-filler — существительное (занятие). to kill time — глагольное выражение. Это два разных выражения, не одно." },
+      { en: ["lifelong passion"], tr: "/ˈlaɪflɒŋ ˈpæʃən/", ru: "увлечение на всю жизнь", ex: "Drawing has been my lifelong passion." },
+      { en: ["outdoor activities"], tr: "/ˈaʊtdɔːr ækˈtɪvətiz/", ru: "занятия на улице (поход, велосипед)", ex: "I prefer outdoor activities like hiking and cycling." },
+      { en: ["indoor activities"], tr: "/ˈɪndɔːr ækˈtɪvətiz/", ru: "занятия в помещении (игры, чтение)", ex: "In winter I switch to indoor activities like reading." },
+      { en: ["to wind down", "wind down"], tr: "/ˌwaɪnd ˈdaʊn/", ru: "расслабиться после работы или стресса", ex: "I draw mandalas to wind down after work.", note: "wind здесь читается [waɪnd], как в «wind a clock», а не [wɪnd] (ветер). Прошедшее время: wound down [waʊnd]." },
+      { en: ["to take up a hobby", "take up a hobby"], tr: "/ˌteɪk ˈʌp ə ˈhɒbi/", ru: "начать новое хобби, заняться чем-то", ex: "Last year I took up yoga.", note: "take up — начать заниматься. Противоположное — give up или quit (бросить)." },
+      { en: ["an escape from daily routine", "escape from daily routine", "an escape from routine", "escape from routine"], tr: "/ən ɪˈskeɪp frəm ˈdeɪli ruːˈtiːn/", ru: "побег от рутины", ex: "Reading is an escape from daily routine for me.", note: "Произношение: routine — ударение на второй слог, /ruːˈtiːn/, «руТИН»." },
+      { en: ["to add variety", "add variety"], tr: "/æd vəˈraɪəti/", ru: "добавить разнообразия", ex: "Hobbies add variety to my life." },
+      { en: ["creative"], tr: "/kriˈeɪtɪv/", ru: "творческий", ex: "Drawing is a creative hobby." },
+      { en: ["relaxing"], tr: "/rɪˈlæksɪŋ/", ru: "расслабляющий", ex: "Yoga is very relaxing." },
+      { en: ["fascinating"], tr: "/ˈfæsɪneɪtɪŋ/", ru: "увлекательный, захватывающий", ex: "I find history fascinating." },
+      { en: ["intellectual"], tr: "/ˌɪntəˈlektʃuəl/", ru: "интеллектуальный", ex: "Chess is an intellectual game.", note: "Произношение: главное ударение на «лек» — /ˌɪntəˈlektʃuəl/." },
+      { en: ["calm"], tr: "/kɑːm/", ru: "спокойный", ex: "Knitting is a calm activity.", note: "Произношение: буква l не читается — /kɑːm/, «кАам»." },
+      { en: ["active"], tr: "/ˈæktɪv/", ru: "активный", ex: "I like active hobbies like running." },
+      { en: ["to sharpen your mind", "sharpen your mind", "to sharpen the mind", "sharpen the mind"], tr: "/ˈʃɑːpən jɔː ˈmaɪnd/", ru: "тренировать ум, держать ум острым", ex: "Puzzles help to sharpen your mind.", note: "Дословно «заточить ум». По-русски естественнее «тренировать ум» или «держать мозг в тонусе»." },
+      { en: ["to take your mind off things", "take your mind off things", "to take my mind off things", "take my mind off things"], tr: "/ˌteɪk jɔː ˈmaɪnd ɒf ˈθɪŋz/", ru: "отвлечься, переключиться от проблем", ex: "Running takes my mind off things.", note: "Нужно притяжательное слово: take MY / YOUR mind off things. Без него («take mind off») ошибка." },
+      { en: ["to be a distraction", "be a distraction", "a distraction"], tr: "/bi ə dɪˈstrækʃən/", ru: "быть способом отвлечься", ex: "Gaming is a good distraction after a long day." },
+      { en: ["to be a challenge", "be a challenge", "a challenge"], tr: "/bi ə ˈtʃælɪndʒ/", ru: "быть вызовом, испытанием", ex: "Learning a language is a real challenge." },
+      { en: ["it gets me out of the house", "gets me out of the house"], tr: "/ɪt ˈɡets mi ˈaʊt əv ðə ˈhaʊs/", ru: "это вытаскивает меня из дома", ex: "Dancing gets me out of the house twice a week." },
+      { en: ["it helps me connect with others", "it helps me to connect with others", "helps me connect with others", "helps me to connect with others"], tr: "/ɪt ˈhelps mi kəˈnekt wɪð ˈʌðəz/", ru: "это помогает мне общаться с другими людьми", ex: "Board games help me connect with others.", note: "help me connect и help me to connect — оба варианта верны." },
+      { en: ["it's a great way to meet new people", "it is a great way to meet new people", "a great way to meet new people"], tr: "/ɪts ə ˈɡreɪt ˈweɪ tə ˈmiːt njuː ˈpiːpəl/", ru: "это отличный способ знакомиться с новыми людьми", ex: "Volunteering is a great way to meet new people.", note: "new people — новые люди, не «другие люди». И помним: people без -s." },
+      { en: ["it makes me stronger", "makes me stronger"], tr: "/ɪt ˈmeɪks mi ˈstrɒŋɡə/", ru: "это делает меня сильнее", ex: "Swimming makes me stronger." },
+      { en: ["more flexible", "it makes me more flexible", "makes me more flexible"], tr: "/mɔː ˈfleksəbəl/", ru: "(делает меня) гибче", ex: "Yoga makes me more flexible." },
+      { en: ["it keeps me fit and healthy", "keeps me fit and healthy", "fit and healthy"], tr: "/ɪt ˈkiːps mi ˈfɪt ən ˈhelθi/", ru: "это держит меня в форме и здоровой", ex: "Cycling keeps me fit and healthy.", note: "fit — в хорошей физической форме." },
+      { en: ["personal satisfaction", "satisfaction"], tr: "/ˈpɜːsənəl ˌsætɪsˈfækʃən/", ru: "личное удовлетворение", ex: "Cooking gives me personal satisfaction." },
+      { en: ["talent"], tr: "/ˈtælənt/", ru: "талант", ex: "She has a talent for music." },
+      { en: ["ability"], tr: "/əˈbɪləti/", ru: "способность, умение", ex: "Chess improves your ability to concentrate." },
+      { en: ["to pass time", "pass time", "to pass the time", "pass the time"], tr: "/pɑːs ðə ˈtaɪm/", ru: "проводить время, коротать время", ex: "I knit to pass the time on long trips.", note: "Чаще говорят pass THE time. to kill time — то же, но разговорнее." },
+      { en: ["hiking"], tr: "/ˈhaɪkɪŋ/", ru: "пешие походы", ex: "We go hiking in the mountains every summer.", note: "go hiking, go cycling — с глаголом go, без предлога." },
+      { en: ["cycling"], tr: "/ˈsaɪklɪŋ/", ru: "езда на велосипеде", ex: "Cycling is my favourite outdoor activity." },
+      { en: ["gaming"], tr: "/ˈɡeɪmɪŋ/", ru: "видеоигры (как занятие)", ex: "Gaming helps me wind down after work." },
+      { en: ["stress"], tr: "/stres/", ru: "стресс", ex: "Yoga helps me deal with stress." }
+    ],
+    cloze: [
+      { q: "Last year I ___ up yoga.", a: ["took"], ru: "В прошлом году я начала заниматься йогой.", note: "take – took – taken." },
+      { q: "After a long day I need something to wind ___.", a: ["down"], ru: "После долгого дня мне нужно что-то, чтобы расслабиться." },
+      { q: "I play mobile games on the bus just to ___ time.", a: ["kill"], ru: "Я играю в телефон в автобусе, просто чтобы убить время." },
+      { q: "Painting has been my ___ passion since childhood.", a: ["lifelong"], ru: "Рисование — моё увлечение на всю жизнь, с детства." },
+      { q: "Running helps me take my ___ off things.", a: ["mind"], ru: "Бег помогает мне отвлечься от проблем." },
+      { q: "Chess is a great way to ___ your mind.", a: ["sharpen"], ru: "Шахматы — отличный способ тренировать ум." },
+      { q: "Travelling adds ___ to my life.", a: ["variety"], ru: "Путешествия добавляют разнообразия в мою жизнь." },
+      { q: "For me, reading is an ___ from daily routine.", a: ["escape"], ru: "Для меня чтение — это побег от рутины." },
+      { q: "Hiking gets me ___ of the house at weekends.", a: ["out"], ru: "Походы вытаскивают меня из дома по выходным." },
+      { q: "Joining a dance class is a great way to meet new ___.", a: ["people"], ru: "Танцы — отличный способ знакомиться с новыми людьми." },
+      { q: "Swimming keeps me ___ and healthy.", a: ["fit"], ru: "Плавание держит меня в форме и здоровой." },
+      { q: "Yoga makes me more ___.", a: ["flexible"], ru: "Йога делает меня гибче." },
+      { q: "Learning to code was a real ___ for me.", a: ["challenge"], ru: "Научиться программировать было для меня настоящим вызовом." },
+      { q: "Team sports help me ___ with others.", a: ["connect"], ru: "Командные виды спорта помогают мне общаться с другими." },
+      { q: "Playing the piano is a ___-based hobby.", a: ["skill"], ru: "Игра на пианино — хобби, которое развивает навык." },
+      { q: "Volunteering is a very ___ hobby: you help people and feel good.", a: ["rewarding"], ru: "Волонтёрство — хобби, которое приносит удовлетворение: помогаешь людям и чувствуешь себя хорошо." },
+      { q: "In winter I prefer ___ activities like reading and board games.", a: ["indoor"], ru: "Зимой я предпочитаю занятия дома: чтение и настольные игры." },
+      { q: "In summer I love ___ activities like cycling.", a: ["outdoor"], ru: "Летом я люблю занятия на улице, например велосипед." },
+      { q: "I find astronomy absolutely ___.", a: ["fascinating"], ru: "Астрономия кажется мне невероятно увлекательной." }
+    ]
+  },
+  {
+    id: "hobbies-names",
+    title: "Хобби: названия",
+    words: [
+      { en: ["knitting"], tr: "/ˈnɪtɪŋ/", ru: "вязание", ex: "My grandmother taught me knitting.", note: "Буква k в начале не читается." },
+      { en: ["sewing"], tr: "/ˈsəʊɪŋ/", ru: "шитьё", ex: "I make my own clothes, sewing is my hobby.", note: "Читается «сОуинг», не «сьюинг»." },
+      { en: ["surfing"], tr: "/ˈsɜːfɪŋ/", ru: "сёрфинг", ex: "We went surfing in Portugal." },
+      { en: ["origami"], tr: "/ˌɒrɪˈɡɑːmi/", ru: "оригами", ex: "Origami needs a lot of patience." },
+      { en: ["calligraphy"], tr: "/kəˈlɪɡrəfi/", ru: "каллиграфия", ex: "Calligraphy helps me relax.", note: "Ударение на второй слог: каЛИграфи." },
+      { en: ["gardening"], tr: "/ˈɡɑːdənɪŋ/", ru: "садоводство, работа в саду", ex: "Gardening is a rewarding hobby." },
+      { en: ["pottery"], tr: "/ˈpɒtəri/", ru: "гончарное дело, керамика", ex: "I took up pottery last year." },
+      { en: ["diving"], tr: "/ˈdaɪvɪŋ/", ru: "дайвинг, ныряние", ex: "Diving in the Red Sea was amazing." },
+      { en: ["fishing"], tr: "/ˈfɪʃɪŋ/", ru: "рыбалка", ex: "My dad goes fishing every weekend." },
+      { en: ["horse riding", "riding a horse"], tr: "/ˈhɔːs ˌraɪdɪŋ/", ru: "верховая езда", ex: "I go horse riding in summer.", note: "Как название хобби естественнее horse riding: I go horse riding." },
+      { en: ["riding a bike", "cycling"], tr: "/ˈraɪdɪŋ ə ˈbaɪk/", ru: "езда на велосипеде", ex: "Riding a bike to work keeps me fit.", note: "Как название хобби чаще говорят cycling." },
+      { en: ["swimming"], tr: "/ˈswɪmɪŋ/", ru: "плавание", ex: "Swimming keeps me fit and healthy." },
+      { en: ["flying a kite"], tr: "/ˈflaɪɪŋ ə ˈkaɪt/", ru: "запуск воздушного змея", ex: "Flying a kite on the beach is great fun." },
+      { en: ["surfing the web", "surfing the internet"], tr: "/ˈsɜːfɪŋ ðə ˈweb/", ru: "сидеть в интернете", ex: "I spend too much time surfing the web." },
+      { en: ["drawing"], tr: "/ˈdrɔːɪŋ/", ru: "рисование", ex: "Drawing helps me wind down.", note: "drawing — карандашом или ручкой, painting — красками. r в конце не читается: «дрооинг»." },
+      { en: ["watching TV"], tr: "/ˈwɒtʃɪŋ ˌtiːˈviː/", ru: "смотреть телевизор", ex: "I don't spend much time watching TV." },
+      { en: ["going to the cinema"], tr: "/ˈɡəʊɪŋ tə ðə ˈsɪnəmə/", ru: "ходить в кино", ex: "Going to the cinema is my Friday ritual." },
+      { en: ["cooking"], tr: "/ˈkʊkɪŋ/", ru: "готовка, кулинария", ex: "I'm really into cooking." },
+      { en: ["travelling", "traveling"], tr: "/ˈtrævəlɪŋ/", ru: "путешествия", ex: "Travelling adds variety to my life.", note: "travelling — британское написание (две l), traveling — американское." },
+      { en: ["shopping"], tr: "/ˈʃɒpɪŋ/", ru: "шопинг, покупки", ex: "I go shopping at the weekend." },
+      { en: ["walking the dog", "walking with a dog"], tr: "/ˈwɔːkɪŋ ðə ˈdɒɡ/", ru: "выгуливать собаку", ex: "Walking the dog gets me out of the house.", note: "Естественнее walking the dog. В walking буква l не читается: «уоокинг»." },
+      { en: ["playing games on my phone", "playing phone games", "playing mobile games"], tr: "/ˈpleɪɪŋ ˈɡeɪmz ɒn maɪ ˈfəʊn/", ru: "играть в игры на телефоне", ex: "Playing games on my phone is just a time-filler.", note: "Естественнее playing games on my phone или playing mobile games." },
+      { en: ["reading"], tr: "/ˈriːdɪŋ/", ru: "чтение", ex: "Reading is an escape from daily routine." },
+      { en: ["hanging out with friends"], tr: "/ˈhæŋɪŋ ˈaʊt wɪð ˈfrendz/", ru: "проводить время с друзьями, тусоваться", ex: "On Fridays I'm usually hanging out with friends." },
+      { en: ["dancing"], tr: "/ˈdɑːnsɪŋ/", ru: "танцы", ex: "Dancing is a great way to meet new people." },
+      { en: ["making videos"], tr: "/ˈmeɪkɪŋ ˈvɪdiəʊz/", ru: "снимать видео", ex: "She's into making videos for YouTube." },
+      { en: ["taking photos", "taking pictures"], tr: "/ˈteɪkɪŋ ˈfəʊtəʊz/", ru: "фотографировать", ex: "I love taking photos when I travel." },
+      { en: ["singing"], tr: "/ˈsɪŋɪŋ/", ru: "пение", ex: "Singing in a choir helps me connect with others." },
+      { en: ["listening to music"], tr: "/ˈlɪsənɪŋ tə ˈmjuːzɪk/", ru: "слушать музыку", ex: "I listen to music on my way to work.", note: "В listen буква t не читается. Всегда listen TO something." },
+      { en: ["playing the drums"], tr: "/ˈpleɪɪŋ ðə ˈdrʌmz/", ru: "играть на барабанах", ex: "Playing the drums is a skill-based hobby.", note: "С музыкальными инструментами — артикль the: play the drums, play the guitar. Со спортом — без артикля: play football." },
+      { en: ["playing the guitar"], tr: "/ˈpleɪɪŋ ðə ɡɪˈtɑː/", ru: "играть на гитаре", ex: "I've been playing the guitar for ten years.", note: "guitar — ударение на второй слог: гиТАА." },
+      { en: ["working out"], tr: "/ˌwɜːkɪŋ ˈaʊt/", ru: "тренироваться (в зале)", ex: "I work out three times a week." },
+      { en: ["doing gymnastics"], tr: "/ˈduːɪŋ dʒɪmˈnæstɪks/", ru: "заниматься гимнастикой", ex: "Doing gymnastics makes me more flexible." },
+      { en: ["playing football"], tr: "/ˈpleɪɪŋ ˈfʊtbɔːl/", ru: "играть в футбол", ex: "We play football every Saturday." },
+      { en: ["skateboarding"], tr: "/ˈskeɪtbɔːdɪŋ/", ru: "катание на скейтборде", ex: "Skateboarding is popular with teenagers." },
+      { en: ["skiing"], tr: "/ˈskiːɪŋ/", ru: "катание на лыжах", ex: "In winter we go skiing in the mountains." }
+    ],
+    cloze: [
+      { q: "My grandmother taught me ___: I've already made three scarves.", a: ["knitting"], ru: "Бабушка научила меня вязать: я уже связала три шарфа." },
+      { q: "On Sundays my dad goes ___, but he rarely catches anything.", a: ["fishing"], ru: "По воскресеньям папа ходит на рыбалку, но редко что-то ловит." },
+      { q: "I play ___ guitar in a small band.", a: ["the"], ru: "Я играю на гитаре в небольшой группе.", note: "Инструменты — с the." },
+      { q: "On Fridays I usually hang ___ with friends.", a: ["out"], ru: "По пятницам я обычно провожу время с друзьями." },
+      { q: "I go to the gym to work ___.", a: ["out"], ru: "Я хожу в зал тренироваться." },
+      { q: "I love listening ___ music on the train.", a: ["to"], ru: "Я люблю слушать музыку в поезде." },
+      { q: "Every morning I walk ___ dog in the park.", a: ["the"], ru: "Каждое утро я выгуливаю собаку в парке." },
+      { q: "She takes beautiful ___ with her phone.", a: ["photos", "pictures"], ru: "Она делает красивые фотографии на телефон." },
+      { q: "In winter we go ___ in the mountains.", a: ["skiing"], ru: "Зимой мы катаемся на лыжах в горах." },
+      { q: "I took up ___ last year: I make cups and plates from clay.", a: ["pottery"], ru: "В прошлом году я занялась керамикой: делаю чашки и тарелки из глины." }
+    ]
+  },
+  {
+    id: "likes",
+    title: "Как сказать, что нравится",
+    words: [
+      { en: ["I like cooking"], tr: "/aɪ ˈlaɪk ˈkʊkɪŋ/", ru: "мне нравится готовить (базовое)", ex: "I like cooking at the weekend.", note: "Шкала урока от слабого к сильному: like, enjoy, fond of, prefer, keen on, into, love, crazy about." },
+      { en: ["I enjoy cooking"], tr: "/aɪ ɪnˈdʒɔɪ ˈkʊkɪŋ/", ru: "мне нравится готовить, получаю удовольствие", ex: "I enjoy cooking for my friends.", note: "После enjoy — только -ing: enjoy cooking, не enjoy to cook." },
+      { en: ["I'm fond of cooking", "I am fond of cooking"], tr: "/aɪm ˈfɒnd əv ˈkʊkɪŋ/", ru: "я люблю готовить, мне это по душе", ex: "I've always been fond of cooking.", note: "fond OF + -ing." },
+      { en: ["I prefer cooking"], tr: "/aɪ prɪˈfɜː ˈkʊkɪŋ/", ru: "я предпочитаю готовить", ex: "I prefer cooking to eating out.", note: "prefer X TO Y: I prefer cooking to eating out. Ударение на второй слог: приФЁ." },
+      { en: ["I'm keen on cooking", "I am keen on cooking"], tr: "/aɪm ˈkiːn ɒn ˈkʊkɪŋ/", ru: "я увлекаюсь готовкой", ex: "I'm keen on cooking Italian food.", note: "keen ON + -ing. Больше британское." },
+      { en: ["I'm into cooking", "I am into cooking"], tr: "/aɪm ˈɪntuː ˈkʊkɪŋ/", ru: "я увлекаюсь готовкой (разговорное)", ex: "I'm really into cooking these days." },
+      { en: ["I love cooking"], tr: "/aɪ ˈlʌv ˈkʊkɪŋ/", ru: "обожаю готовить", ex: "I love cooking for my family." },
+      { en: ["I'm crazy about cooking", "I am crazy about cooking"], tr: "/aɪm ˈkreɪzi əˈbaʊt ˈkʊkɪŋ/", ru: "я без ума от готовки", ex: "My sister is crazy about cooking.", note: "crazy ABOUT + -ing." },
+      { en: ["I cook for fun"], tr: "/aɪ ˈkʊk fə ˈfʌn/", ru: "я готовлю для удовольствия (не по работе)", ex: "I'm not a chef, I just cook for fun." }
+    ],
+    cloze: [
+      { q: "I'm fond ___ cooking.", a: ["of"], ru: "Я люблю готовить." },
+      { q: "I'm keen ___ photography.", a: ["on"], ru: "Я увлекаюсь фотографией." },
+      { q: "I'm really ___ yoga at the moment.", a: ["into"], ru: "Сейчас я очень увлекаюсь йогой." },
+      { q: "She's crazy ___ dancing.", a: ["about"], ru: "Она без ума от танцев." },
+      { q: "I enjoy ___ for my friends. (cook)", a: ["cooking"], ru: "Мне нравится готовить для друзей." },
+      { q: "I prefer reading ___ watching TV.", a: ["to"], ru: "Я предпочитаю чтение телевизору." },
+      { q: "I'm not a professional artist, I just paint for ___.", a: ["fun"], ru: "Я не профессиональный художник, просто рисую для удовольствия." }
+    ]
+  },
+  {
+    id: "work-life",
+    title: "Работа и жизнь",
+    words: [
+      { en: ["to unwind", "unwind"], tr: "/ʌnˈwaɪnd/", ru: "расслабиться, снять напряжение", ex: "I go for a walk in the evening to unwind.", note: "Синоним wind down. Читается тоже /waɪnd/, как «вайнд»." },
+      { en: ["a stance on", "stance on", "stance"], tr: "/ə ˈstæns ɒn/", ru: "позиция по вопросу, отношение к", ex: "What's your stance on remote work?", note: "stance ON something." },
+      { en: ["to make a living", "make a living", "to earn a living", "earn a living"], tr: "/meɪk ə ˈlɪvɪŋ/", ru: "зарабатывать на жизнь", ex: "She makes a living as a designer." },
+      { en: ["to make money", "make money", "to earn money", "earn money"], tr: "/meɪk ˈmʌni/", ru: "зарабатывать деньги", ex: "It's hard to make money from a hobby." },
+      { en: ["to make a profit", "make a profit"], tr: "/meɪk ə ˈprɒfɪt/", ru: "получать прибыль", ex: "The company made a profit last year.", note: "Про бизнес и сделки. Обычно make a profit, earn a profit — редко." },
+      { en: ["to take pleasure in", "take pleasure in"], tr: "/teɪk ˈpleʒər ɪn/", ru: "получать удовольствие от", ex: "I take pleasure in simple things." },
+      { en: ["relish", "to relish"], tr: "/ˈrelɪʃ/", ru: "наслаждаться, смаковать, с удовольствием ждать", ex: "She relishes a good challenge.", note: "Без предлога: relish the challenge." },
+      { en: ["revel in", "to revel in"], tr: "/ˈrevəl ɪn/", ru: "упиваться, наслаждаться", ex: "He revelled in his success." },
+      { en: ["delight in", "to delight in"], tr: "/dɪˈlaɪt ɪn/", ru: "находить радость в", ex: "She delights in cooking for others." },
+      { en: ["savour", "to savour", "savor"], tr: "/ˈseɪvə/", ru: "смаковать, наслаждаться", ex: "Savour every moment of your holiday.", note: "Без предлога. savour — британское написание, savor — американское." },
+      { en: ["luxuriate in", "to luxuriate in"], tr: "/lʌɡˈʒʊərieɪt ɪn/", ru: "нежиться, наслаждаться (книжное)", ex: "I luxuriated in a hot bath." },
+      { en: ["pros and cons"], tr: "/ˌprəʊz ən ˈkɒnz/", ru: "плюсы и минусы", ex: "Let's weigh the pros and cons." },
+      { en: ["to have a calling", "have a calling"], tr: "/hæv ə ˈkɔːlɪŋ/", ru: "иметь призвание", ex: "She felt she had a calling to teach." },
+      { en: ["to leave room for", "leave room for"], tr: "/liːv ˈruːm fə/", ru: "оставлять место, возможность для", ex: "My job leaves little room for hobbies." },
+      { en: ["a stable environment", "stable environment"], tr: "/ə ˈsteɪbəl ɪnˈvaɪrənmənt/", ru: "стабильная среда", ex: "Children need a stable environment." },
+      { en: ["circumstances"], tr: "/ˈsɜːkəmstænsɪz/", ru: "обстоятельства", ex: "Under these circumstances, we had to wait.", note: "Говорят under the circumstances или in these circumstances." },
+      { en: ["time off"], tr: "/ˌtaɪm ˈɒf/", ru: "отгул, время отдыха от работы", ex: "I need some time off to recharge.", note: "Отпуск — holiday (брит.) или vacation (амер.). time off шире: любой перерыв в работе." },
+      { en: ["to recharge", "recharge"], tr: "/ˌriːˈtʃɑːdʒ/", ru: "перезарядиться, восстановить силы", ex: "A weekend in nature helps me recharge." },
+      { en: ["to back up", "back up"], tr: "/ˌbæk ˈʌp/", ru: "подкрепить, подтвердить", ex: "Back up your answer with an example.", note: "Ещё значение: сделать резервную копию (back up files)." },
+      { en: ["to take after", "take after"], tr: "/ˌteɪk ˈɑːftə/", ru: "быть похожим на (родственника)", ex: "I take after my mother.", note: "Только о родственниках, обычно старших." },
+      { en: ["to fit in", "fit in"], tr: "/ˌfɪt ˈɪn/", ru: "вписываться, быть своим", ex: "It took me a month to fit in at the new office." },
+      { en: ["to be the black sheep of the family", "be the black sheep of the family", "the black sheep of the family", "black sheep"], tr: "/ðə ˌblæk ˈʃiːp əv ðə ˈfæməli/", ru: "быть белой вороной, паршивой овцой в семье", ex: "I'm the black sheep of the family: everyone else is a doctor.", note: "С оттенком неодобрения семьи. «Белая ворона» в любой группе — the odd one out." },
+      { en: ["to make up", "make up"], tr: "/ˌmeɪk ˈʌp/", ru: "составлять (долю)", ex: "Women make up 40% of the workforce.", note: "Другие значения: помириться (make up with someone), выдумать (make up a story)." },
+      { en: ["workforce"], tr: "/ˈwɜːkfɔːs/", ru: "рабочая сила, сотрудники", ex: "The company has a workforce of 500." },
+      { en: ["turnover rate", "turnover rates", "turnover"], tr: "/ˈtɜːnəʊvə ˌreɪt/", ru: "текучесть кадров", ex: "High turnover rates cost the company a lot.", note: "turnover также значит «оборот компании»." },
+      { en: ["retention"], tr: "/rɪˈtenʃən/", ru: "удержание, сохранение", ex: "Employee retention is a priority this year.", note: "В аналитике — retention rate, удержание пользователей." },
+      { en: ["a large-scale survey", "large-scale survey"], tr: "/ə ˌlɑːdʒ ˈskeɪl ˈsɜːveɪ/", ru: "масштабное исследование, опрос", ex: "They conducted a large-scale survey of employees.", note: "survey — существительное, ударение на первый слог: СЁвей. Глагол to survey — на второй: сэВЕЙ." },
+      { en: ["to strive to", "strive to", "strive"], tr: "/straɪv tə/", ru: "стремиться, стараться, добиваться", ex: "We strive to improve every day.", note: "strive TO + глагол, strive FOR + существительное (strive for success). strive – strove – striven." },
+      { en: ["employee engagement"], tr: "/ɪmˈplɔɪiː ɪnˈɡeɪdʒmənt/", ru: "вовлечённость сотрудников", ex: "Employee engagement has grown since the survey." },
+      { en: ["to conduct", "conduct"], tr: "/kənˈdʌkt/", ru: "проводить (исследование, опрос)", ex: "We conducted an experiment.", note: "Глагол — ударение на второй слог: кэнДАКТ. Существительное conduct /ˈkɒndʌkt/ — поведение." },
+      { en: ["to be committed to", "be committed to", "committed to"], tr: "/bi kəˈmɪtɪd tə/", ru: "быть преданным чему-то, кому-то", ex: "She is committed to her work.", note: "После to — существительное или -ing: committed to improving." },
+      { en: ["excessive"], tr: "/ɪkˈsesɪv/", ru: "чрезмерный", ex: "Excessive workload leads to burnout." },
+      { en: ["sacrifice"], tr: "/ˈsækrɪfaɪs/", ru: "жертва, самопожертвование; жертвовать", ex: "She made many sacrifices for her career." },
+      { en: ["flexibility"], tr: "/ˌfleksəˈbɪləti/", ru: "гибкость", ex: "Remote work gives me flexibility." },
+      { en: ["working hours", "work schedule", "schedule"], tr: "/ˈwɜːkɪŋ ˌaʊəz/", ru: "рабочие часы, график", ex: "My working hours are from nine to six.", note: "hours — h не читается. schedule: брит. /ˈʃedjuːl/, амер. /ˈskedʒuːl/." },
+      { en: ["to develop skills", "develop skills"], tr: "/dɪˈveləp ˈskɪlz/", ru: "развивать навыки", ex: "Volunteering helps you develop new skills.", note: "develop — ударение на второй слог: диВЕлоп." },
+      { en: ["interpersonal skills"], tr: "/ˌɪntəˈpɜːsənəl ˈskɪlz/", ru: "навыки межличностного общения", ex: "Good managers have strong interpersonal skills." },
+      { en: ["to contribute to", "contribute to"], tr: "/kənˈtrɪbjuːt tə/", ru: "вносить вклад, способствовать", ex: "Hobbies contribute to wellbeing.", note: "Ударение на второй слог: кэнТРИбьют." },
+      { en: ["workload", "workload level"], tr: "/ˈwɜːkləʊd/", ru: "нагрузка, уровень нагрузки", ex: "I have a heavy workload this month.", note: "«workload level» говорят редко, обычно просто workload: a heavy workload." }
+    ],
+    cloze: [
+      { q: "I go for a walk in the evening to ___.", a: ["unwind"], ru: "Вечером я гуляю, чтобы расслабиться." },
+      { q: "What's your ___ on remote work?", a: ["stance"], ru: "Какая у вас позиция по удалённой работе?" },
+      { q: "She makes a ___ as a freelance designer.", a: ["living"], ru: "Она зарабатывает на жизнь как дизайнер-фрилансер." },
+      { q: "Let's weigh the pros and ___.", a: ["cons"], ru: "Давайте взвесим плюсы и минусы." },
+      { q: "My job leaves little ___ for hobbies.", a: ["room"], ru: "Работа оставляет мало места для хобби." },
+      { q: "I need some time ___ to recharge.", a: ["off"], ru: "Мне нужен отгул, чтобы перезарядиться." },
+      { q: "Back ___ your opinion with an example.", a: ["up"], ru: "Подкрепите своё мнение примером." },
+      { q: "I take ___ my father: we're both stubborn.", a: ["after"], ru: "Я пошла в отца: мы оба упрямые." },
+      { q: "It took me a month to fit ___ at the new office.", a: ["in"], ru: "Мне понадобился месяц, чтобы влиться в новый офис." },
+      { q: "Women make ___ 40% of the workforce.", a: ["up"], ru: "Женщины составляют 40% сотрудников." },
+      { q: "High staff ___ rates cost the company a lot.", a: ["turnover"], ru: "Высокая текучесть кадров дорого обходится компании." },
+      { q: "The company ___ a large-scale survey of its employees.", a: ["conducted"], ru: "Компания провела масштабный опрос сотрудников." },
+      { q: "We strive ___ improve employee engagement.", a: ["to"], ru: "Мы стремимся повысить вовлечённость сотрудников." },
+      { q: "She is committed ___ her work.", a: ["to"], ru: "Она предана своей работе." },
+      { q: "Excessive ___ leads to burnout.", a: ["workload"], ru: "Чрезмерная нагрузка ведёт к выгоранию." },
+      { q: "Teamwork helps to develop interpersonal ___.", a: ["skills"], ru: "Работа в команде развивает навыки общения." },
+      { q: "Good managers contribute ___ employee retention.", a: ["to"], ru: "Хорошие руководители способствуют удержанию сотрудников." }
+    ]
+  },
+  {
+    id: "linkers",
+    title: "Вводные слова и связки",
+    words: [
+      { en: ["for example"], tr: "/fər ɪɡˈzɑːmpəl/", ru: "например", ex: "I like many sports, for example, tennis." },
+      { en: ["for instance"], tr: "/fər ˈɪnstəns/", ru: "например", ex: "Some hobbies, for instance, chess, sharpen your mind." },
+      { en: ["for that matter"], tr: "/fə ˈðæt ˌmætə/", ru: "если уж на то пошло, да и вообще", ex: "I don't like tea, or coffee for that matter.", note: "На карточке урока — «что касается этого». Точнее: «если уж на то пошло»." },
+      { en: ["fortunately"], tr: "/ˈfɔːtʃənətli/", ru: "к счастью", ex: "Fortunately, nobody was hurt." },
+      { en: ["unfortunately"], tr: "/ʌnˈfɔːtʃənətli/", ru: "к сожалению", ex: "Unfortunately, I can't come.", note: "Обычно переводят «к сожалению». «К несчастью» звучит сильнее, чем в английском." },
+      { en: ["frankly speaking"], tr: "/ˈfræŋkli ˈspiːkɪŋ/", ru: "откровенно говоря", ex: "Frankly speaking, I didn't like the film." },
+      { en: ["honestly speaking", "to be honest", "honestly"], tr: "/ˈɒnɪstli ˈspiːkɪŋ/", ru: "честно говоря", ex: "Honestly speaking, I prefer staying at home.", note: "h не читается: «Онистли». Чаще говорят просто honestly или to be honest." },
+      { en: ["I hope"], tr: "/aɪ ˈhəʊp/", ru: "я надеюсь", ex: "I hope you're well." },
+      { en: ["in short"], tr: "/ɪn ˈʃɔːt/", ru: "короче говоря", ex: "In short, it was a great trip." },
+      { en: ["in the first instance"], tr: "/ɪn ðə ˈfɜːst ˈɪnstəns/", ru: "в первую очередь, для начала", ex: "In the first instance, contact your manager." },
+      { en: ["I see"], tr: "/aɪ ˈsiː/", ru: "понятно, я понимаю", ex: "I see, so you want to change jobs." },
+      { en: ["I think"], tr: "/aɪ ˈθɪŋk/", ru: "я думаю", ex: "I think hobbies are important." },
+      { en: ["it seems"], tr: "/ɪt ˈsiːmz/", ru: "кажется", ex: "It seems that everyone is busy today." },
+      { en: ["maybe"], tr: "/ˈmeɪbi/", ru: "может быть, возможно", ex: "Maybe I'll take up yoga.", note: "maybe — одно слово, «возможно». may be — два слова, это глагол: It may be true (Это может быть правдой). На карточке урока написано may be — так в значении «может быть» нельзя." },
+      { en: ["namely"], tr: "/ˈneɪmli/", ru: "а именно", ex: "I'm interested in one thing, namely data analysis." },
+      { en: ["no doubt"], tr: "/nəʊ ˈdaʊt/", ru: "без сомнения", ex: "No doubt you've heard the news.", note: "b в doubt не читается: «даут»." },
+      { en: ["without doubt", "without a doubt"], tr: "/wɪˈðaʊt ˈdaʊt/", ru: "без сомнения", ex: "It was without doubt the best day of my life." },
+      { en: ["of course"], tr: "/əv ˈkɔːs/", ru: "конечно", ex: "Of course I'll help you.", note: "В ответ на простой вопрос «of course» может звучать как «конечно, что за вопрос». Мягче: sure." },
+      { en: ["perhaps"], tr: "/pəˈhæps/", ru: "возможно, может быть", ex: "Perhaps we should leave earlier." },
+      { en: ["probably"], tr: "/ˈprɒbəbli/", ru: "вероятно", ex: "I'll probably stay at home tonight." },
+      { en: ["so"], tr: "/səʊ/", ru: "итак, так что", ex: "So, let's begin.", note: "«Так себе» — so-so." },
+      { en: ["they say"], tr: "/ðeɪ ˈseɪ/", ru: "говорят", ex: "They say it will rain tomorrow." },
+      { en: ["to be more exact"], tr: "/tə bi mɔːr ɪɡˈzækt/", ru: "точнее говоря", ex: "I've worked there for years, to be more exact, five." },
+      { en: ["to begin with"], tr: "/tə bɪˈɡɪn wɪð/", ru: "начнём с того, что; для начала", ex: "To begin with, I don't have time." },
+      { en: ["to say nothing of"], tr: "/tə ˈseɪ ˈnʌθɪŋ əv/", ru: "не говоря уже о", ex: "He can't boil an egg, to say nothing of cooking dinner." },
+      { en: ["to sum it up", "to sum up"], tr: "/tə ˈsʌm ɪt ˈʌp/", ru: "подводя итог", ex: "To sum it up, hobbies make us happier." },
+      { en: ["well"], tr: "/wel/", ru: "ну, итак", ex: "Well, it's hard to say." },
+      { en: ["you see"], tr: "/juː ˈsiː/", ru: "видите ли, понимаете", ex: "You see, I've never done this before." },
+      { en: ["after all"], tr: "/ˌɑːftər ˈɔːl/", ru: "в конце концов, всё-таки", ex: "Don't be angry with him, after all, he's only five." },
+      { en: ["I mean"], tr: "/aɪ ˈmiːn/", ru: "я имею в виду", ex: "I like it. I mean, it's not perfect, but I like it." },
+      { en: ["sort of", "kind of"], tr: "/ˈsɔːt əv / ˈkaɪnd əv/", ru: "типа того, вроде, как бы", ex: "I'm kind of tired.", note: "Разговорные слова-паразиты. В IELTS Speaking — умеренно." },
+      { en: ["say"], tr: "/seɪ/", ru: "скажем", ex: "Let's meet at, say, six o'clock." },
+      { en: ["the thing is"], tr: "/ðə ˈθɪŋ ɪz/", ru: "дело в том, что", ex: "The thing is, I don't have time." },
+      { en: ["in other words"], tr: "/ɪn ˈʌðə ˈwɜːdz/", ru: "другими словами", ex: "In other words, we need more time." },
+      { en: ["by the way"], tr: "/baɪ ðə ˈweɪ/", ru: "кстати, между прочим", ex: "By the way, have you seen Anna?" },
+      { en: ["look here"], tr: "/ˈlʊk ˈhɪə/", ru: "слушайте", ex: "Look here, this is not acceptable.", note: "Звучит резко, с раздражением. В нейтральной речи — look или listen." },
+      { en: ["first of all"], tr: "/ˈfɜːst əv ˈɔːl/", ru: "прежде всего, во-первых", ex: "First of all, let me introduce myself.", note: "first of all — первое по порядку. above all — самое важное." },
+      { en: ["above all"], tr: "/əˌbʌv ˈɔːl/", ru: "прежде всего, важнее всего", ex: "Above all, a hobby should be fun." },
+      { en: ["as for", "as to", "as far as"], tr: "/æz ˈfɔː/ /æz ˈtuː/", ru: "что касается", ex: "As for me, I prefer tea.", note: "На карточке урока «as far, as to» — это два выражения, склеенных вместе. Варианты: as for me…, as to the price…, as far as I'm concerned…" },
+      { en: ["anyway"], tr: "/ˈeniweɪ/", ru: "как бы то ни было, в любом случае, ну ладно", ex: "Anyway, let's get back to work.", note: "«Между прочим» точнее передаёт by the way." },
+      { en: ["in a word"], tr: "/ɪn ə ˈwɜːd/", ru: "одним словом", ex: "In a word, it was a disaster." },
+      { en: ["in brief"], tr: "/ɪn ˈbriːf/", ru: "вкратце, короче", ex: "In brief, the project was a success." },
+      { en: ["actually"], tr: "/ˈæktʃuəli/", ru: "на самом деле, фактически", ex: "Actually, I've never been to London.", note: "Ложный друг переводчика: actually — не «актуально». Актуальный — relevant или current." }
+    ],
+    cloze: [
+      { q: "I like many sports, for ___, tennis and swimming.", a: ["example", "instance"], ru: "Я люблю многие виды спорта, например теннис и плавание." },
+      { q: "I don't like tea, or coffee for that ___.", a: ["matter"], ru: "Я не люблю чай, да и кофе, если уж на то пошло." },
+      { q: "In ___, it was a great trip.", a: ["short", "brief"], ru: "Короче говоря, поездка была отличной." },
+      { q: "I'm interested in one thing, ___ data analysis.", a: ["namely"], ru: "Меня интересует одно, а именно анализ данных." },
+      { q: "The thing ___, I don't have time.", a: ["is"], ru: "Дело в том, что у меня нет времени." },
+      { q: "By the ___, have you seen Anna?", a: ["way"], ru: "Кстати, ты видела Анну?" },
+      { q: "First ___ all, let me introduce myself.", a: ["of"], ru: "Прежде всего позвольте представиться." },
+      { q: "___ for me, I prefer tea.", a: ["as"], ru: "Что касается меня, я предпочитаю чай." },
+      { q: "I thought it was easy, but ___ it was very hard.", a: ["actually"], ru: "Я думала, это легко, а на самом деле было очень сложно." },
+      { q: "To sum it ___, hobbies make us happier.", a: ["up"], ru: "Подводя итог: хобби делают нас счастливее." },
+      { q: "He can't boil an egg, to say nothing ___ cooking dinner.", a: ["of"], ru: "Он не может сварить яйцо, не говоря уже об ужине." },
+      { q: "Let's meet at, ___, six o'clock.", a: ["say"], ru: "Давай встретимся, скажем, в шесть." },
+      { q: "In other ___, we need more time.", a: ["words"], ru: "Другими словами, нам нужно больше времени." },
+      { q: "Don't be angry with him, after ___, he's only five.", a: ["all"], ru: "Не сердись на него, в конце концов, ему всего пять." },
+      { q: "___ I'll take up yoga next year. (может быть)", a: ["maybe", "perhaps"], ru: "Может быть, в следующем году займусь йогой.", note: "maybe — одним словом." }
+    ]
+  },
+  {
+    id: "book-words",
+    title: "Слова из книги",
+    words: [
+      { en: ["to figure out", "figure out"], tr: "/ˌfɪɡər ˈaʊt/", ru: "понять, разобраться", ex: "I can't figure out what he wants.", note: "Не просто «понимать», а «додуматься, разобраться»: понять что-то, подумав." },
+      { en: ["to enclose", "enclose", "I didn't enclose", "didn't enclose"], tr: "/ɪnˈkləʊz/", ru: "вложить, приложить (к письму)", ex: "I didn't enclose a return address.", note: "I didn't enclose — я не приложил, не вложил. Говорят о письмах: enclosed is my CV — прилагаю резюме." },
+      { en: ["to appreciate", "appreciate"], tr: "/əˈpriːʃieɪt/", ru: "ценить, быть благодарным; оценить по достоинству", ex: "I really appreciate your help.", note: "Чаще всего — «ценить, быть признательным»: I'd appreciate it — буду признательна." },
+      { en: ["you of all people", "I think you of all people would understand that"], tr: "/juː əv ˈɔːl ˈpiːpəl/", ru: "уж ты-то, как никто другой", ex: "I think you of all people would understand that." },
+      { en: ["at least"], tr: "/ət ˈliːst/", ru: "по крайней мере, хотя бы", ex: "At least nobody was hurt.", note: "Два значения: «по меньшей мере» (at least ten people) и «хотя бы, по крайней мере» (at least you tried)." },
+      { en: ["loudspeaker"], tr: "/ˌlaʊdˈspiːkə/", ru: "громкоговоритель", ex: "The news was announced over the loudspeaker." },
+      { en: ["regret to inform", "we regret to inform you"], tr: "/rɪˈɡret tʊ ɪnˈfɔːm/", ru: "с сожалением сообщаем", ex: "We regret to inform you that the flight is cancelled.", note: "Официальная фраза из писем и объявлений." },
+      { en: ["awkward glasses", "awkward"], tr: "/ˈɔːkwəd ˈɡlɑːsɪz/", ru: "нелепые, неудачные очки", ex: "He wore awkward glasses and a big sweater.", note: "awkward — неловкий, неуклюжий, нелепый. О вещах — «нелепый, неудобный»; о ситуации — «неловкий»: an awkward silence." },
+      { en: ["heard the gunshot", "gunshot"], tr: "/hɜːd ðə ˈɡʌnʃɒt/", ru: "услышали выстрел", ex: "The neighbours heard the gunshot at night.", note: "hear – heard – heard. heard читается «хёд», не «хиад»." },
+      { en: ["shoulder"], tr: "/ˈʃəʊldə/", ru: "плечо", ex: "She put her hand on my shoulder." },
+      { en: ["shrugged", "to shrug", "shrug"], tr: "/ʃrʌɡd/", ru: "пожал плечами", ex: "He just shrugged and walked away.", note: "to shrug — пожимать плечами, shrugged — пожал плечами (прошедшее время). shoulders добавлять не нужно." },
+      { en: ["taught"], tr: "/tɔːt/", ru: "учил, преподавал (прошедшее время)", ex: "My aunt taught me to read.", note: "Неправильный глагол: teach – taught – taught. gh не читается: «тоот»." },
+      { en: ["the guidance counselor", "guidance counselor", "guidance counsellor"], tr: "/ðə ˈɡaɪdəns ˌkaʊnsələ/", ru: "школьный консультант, психолог", ex: "I talked to the guidance counselor about college.", note: "counselor — американское написание, counsellor — британское." },
+      { en: ["tense"], tr: "/tens/", ru: "напряжённый", ex: "The atmosphere at dinner was tense.", note: "Это прилагательное: a tense moment — напряжённый момент. «Было напряжно» — it was tense." },
+      { en: ["sincere"], tr: "/sɪnˈsɪə/", ru: "искренний", ex: "Her apology was sincere.", note: "Ударение на второй слог: синСИА. Yours sincerely — «искренне ваш» в конце письма." },
+      { en: ["a sin", "sin"], tr: "/ə ˈsɪn/", ru: "грех", ex: "Lying is a sin." },
+      { en: ["to reread", "reread"], tr: "/ˌriːˈriːd/", ru: "перечитывать", ex: "I reread the letter three times.", note: "В прошедшем времени пишется так же, но читается /ˌriːˈred/ — как read – read." },
+      { en: ["suspected", "to suspect", "suspect"], tr: "/səˈspektɪd/", ru: "подозревал", ex: "I suspected that something was wrong.", note: "Глагол suspect — ударение на второй слог: сэСПЕКТ. Существительное suspect (подозреваемый) — на первый: САспект." },
+      { en: ["screaming"], tr: "/ˈskriːmɪŋ/", ru: "крик, крики; кричать", ex: "We heard screaming from the house.", note: "scream — кричать от страха или боли. shout — кричать, говорить громко." },
+      { en: ["eventually"], tr: "/ɪˈventʃuəli/", ru: "в конце концов, в итоге", ex: "Eventually, she told me the truth.", note: "Ложный друг: не «эвентуально, возможно». eventually — в итоге, со временем." },
+      { en: ["funeral"], tr: "/ˈfjuːnərəl/", ru: "похороны", ex: "The whole family came to the funeral." },
+      { en: ["wonder", "to wonder"], tr: "/ˈwʌndə/", ru: "задаваться вопросом, интересоваться; удивляться", ex: "I wonder why she left.", note: "Главное значение — «интересно, задаюсь вопросом»: I wonder why — интересно, почему. Читается «уАндэ», не как wander (бродить)." },
+      { en: ["sweeping"], tr: "/ˈswiːpɪŋ/", ru: "подметание", ex: "He was sweeping the floor when I came in.", note: "sweep – swept – swept." },
+      { en: ["slapped", "to slap", "slap"], tr: "/slæpt/", ru: "дал пощёчину, шлёпнул", ex: "She slapped him across the face.", note: "slap — ударить ладонью, дать пощёчину. Ударить вообще — hit." },
+      { en: ["braces"], tr: "/ˈbreɪsɪz/", ru: "брекеты", ex: "I had braces when I was thirteen.", note: "В британском английском braces — ещё и подтяжки для брюк." },
+      { en: ["grew breasts", "grew"], tr: "/ɡruː ˈbrests/", ru: "у неё выросла грудь", ex: "She grew breasts over the summer.", note: "grow – grew – grown. breast читается «брест», не «брист»." },
+      { en: ["to admit", "admit"], tr: "/ədˈmɪt/", ru: "признавать", ex: "He admitted that he was wrong.", note: "admit + -ing: he admitted lying. Ударение на второй слог." },
+      { en: ["throat"], tr: "/θrəʊt/", ru: "горло", ex: "I have a sore throat.", note: "a sore throat — болит горло." },
+      { en: ["self-defense", "self-defence"], tr: "/ˌself dɪˈfens/", ru: "самооборона", ex: "He hit him in self-defense.", note: "self-defense — американское написание, self-defence — британское. in self-defense — в целях самообороны." },
+      { en: ["to fight", "fight"], tr: "/faɪt/", ru: "драться, бороться; драка", ex: "The boys fought after school.", note: "Неправильный глагол: fight – fought – fought (/fɔːt/)." }
+    ],
+    cloze: [
+      { q: "I can't figure ___ how this works.", a: ["out"], ru: "Не могу понять, как это работает." },
+      { q: "I really ___ your help.", a: ["appreciate"], ru: "Я очень ценю вашу помощь." },
+      { q: "I think you of ___ people would understand that.", a: ["all"], ru: "Думаю, уж ты-то поймёшь это как никто другой." },
+      { q: "At ___ you tried.", a: ["least"], ru: "По крайней мере, ты попытался." },
+      { q: "We regret to ___ you that the exam is cancelled.", a: ["inform"], ru: "С сожалением сообщаем, что экзамен отменён." },
+      { q: "He didn't answer, he just ___ his shoulders.", a: ["shrugged"], ru: "Он не ответил, только пожал плечами." },
+      { q: "My grandfather ___ me to play chess. (teach)", a: ["taught"], ru: "Дедушка научил меня играть в шахматы." },
+      { q: "There was a ___ silence after his words.", a: ["tense", "awkward"], ru: "После его слов повисла напряжённая тишина." },
+      { q: "___, she agreed to talk to me.", a: ["eventually"], ru: "В конце концов она согласилась поговорить со мной." },
+      { q: "I ___ why he never called. (интересно)", a: ["wonder"], ru: "Интересно, почему он так и не позвонил." },
+      { q: "She ___ him across the face.", a: ["slapped"], ru: "Она дала ему пощёчину." },
+      { q: "He finally ___ that he was wrong.", a: ["admitted"], ru: "Он наконец признал, что был неправ." },
+      { q: "I have a sore ___.", a: ["throat"], ru: "У меня болит горло." },
+      { q: "He hit him in self-___.", a: ["defense", "defence"], ru: "Он ударил его в целях самообороны." },
+      { q: "The boys ___ after school yesterday. (fight)", a: ["fought"], ru: "Вчера мальчики подрались после школы." },
+      { q: "Her apology sounded ___.", a: ["sincere"], ru: "Её извинения звучали искренне." }
+    ]
+  },
+  {
+    id: "song-oh-no",
+    title: "Песня: MARINA — Oh No!",
+    words: [
+      { en: ["I'll never soften my grip", "I will never soften my grip", "soften my grip"], tr: "/aɪl ˈnevə ˈsɒfən maɪ ˈɡrɪp/", ru: "я никогда не ослаблю хватку", ex: "I've worked too hard for this, I'll never soften my grip.", note: "soften — t не читается: «софн». grip — хватка; to loosen your grip — тоже «ослабить хватку»." },
+      { en: ["grip"], tr: "/ɡrɪp/", ru: "хватка; крепко держать", ex: "Keep a firm grip on the rope.", note: "get a grip — «возьми себя в руки»." },
+      { en: ["to soften", "soften"], tr: "/ˈsɒfən/", ru: "смягчать, ослаблять", ex: "He tried to soften the bad news." },
+      { en: ["fame"], tr: "/feɪm/", ru: "слава, известность", ex: "She never wanted fame or money.", note: "famous — знаменитый. fame and fortune — слава и богатство." },
+      { en: ["self-fulfilling prophecy"], tr: "/ˌself fʊlˈfɪlɪŋ ˈprɒfəsi/", ru: "самоисполняющееся пророчество", ex: "If you expect to fail, it can become a self-fulfilling prophecy.", note: "prophecy (сущ., «пророчество») читается /ˈprɒfəsi/, а prophesy (глагол, «пророчить») — /ˈprɒfəsaɪ/." },
+      { en: ["one-track mind", "a one-track mind"], tr: "/ˌwʌn træk ˈmaɪnd/", ru: "зацикленность на одном, мысли только об одном", ex: "He has a one-track mind: all he thinks about is work.", note: "Отдельно «track mind» не говорят, только one-track mind. Дословно «ум с одной колеёй»: человек думает только об одной вещи." },
+      { en: ["I'll fall apart", "I will fall apart", "to fall apart", "fall apart"], tr: "/aɪl ˌfɔːl əˈpɑːt/", ru: "я развалюсь на части, я сломаюсь", ex: "Without my friends I'd fall apart.", note: "О людях — эмоционально сломаться, не выдержать. О вещах — развалиться: my shoes are falling apart. fall – fell – fallen." },
+      { en: ["to possess", "possess"], tr: "/pəˈzes/", ru: "обладать, владеть", ex: "She possesses a rare talent.", note: "Две двойные s, обе читаются как /z/ и /s/: «пэЗЕС». possessed — одержимый." },
+      { en: ["appeal"], tr: "/əˈpiːl/", ru: "привлекательность; привлекать", ex: "I don't understand the appeal of reality shows.", note: "appeal — существительное (привлекательность) или глагол (привлекать: it appeals to me — мне это нравится). «Привлекательный» — appealing." },
+      { en: ["appealing"], tr: "/əˈpiːlɪŋ/", ru: "привлекательный", ex: "Working from home sounds appealing." }
+    ],
+    cloze: [
+      { q: "I'll never soften my ___.", a: ["grip"], ru: "Я никогда не ослаблю хватку." },
+      { q: "She moved to Los Angeles in search of ___ and fortune.", a: ["fame"], ru: "Она переехала в Лос-Анджелес в поисках славы и богатства." },
+      { q: "His fear of failure became a self-fulfilling ___.", a: ["prophecy"], ru: "Его страх неудачи стал самоисполняющимся пророчеством." },
+      { q: "He has a one-___ mind: he only thinks about football.", a: ["track"], ru: "Он зациклен на одном: думает только о футболе." },
+      { q: "If you leave me, I'll fall ___.", a: ["apart"], ru: "Если ты уйдёшь, я развалюсь на части." },
+      { q: "Few people ___ such patience.", a: ["possess"], ru: "Мало кто обладает таким терпением." },
+      { q: "The idea of living by the sea ___ to me.", a: ["appeals"], ru: "Мне нравится идея жить у моря.", note: "appeal TO someone — нравиться, привлекать кого-то." },
+      { q: "A four-day week sounds very ___.", a: ["appealing"], ru: "Четырёхдневная рабочая неделя звучит очень привлекательно." }
+    ]
+  }
+];
+
+const STORE_KEY = "english-practice-mistakes";
+const LESSON_KEY = "english-practice-lesson";
+
+// Внутри Telegram: тема из Telegram, ошибки дублируются в облако Telegram (до 4 КБ на ключ).
+const tg = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData ? window.Telegram.WebApp : null;
+if (tg) {
+  tg.ready();
+  tg.expand();
+  document.documentElement.dataset.theme = tg.colorScheme === "dark" ? "dark" : "light";
+}
+
+function loadMistakes() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { return {}; }
+}
+function saveMistakes(mistakes) {
+  const json = JSON.stringify(mistakes);
+  try { localStorage.setItem(STORE_KEY, json); } catch (e) {}
+  if (tg && tg.CloudStorage && json.length < 4000) {
+    try { tg.CloudStorage.setItem(STORE_KEY, json); } catch (e) {}
+  }
+}
+
+let mistakes = loadMistakes();
+let mode = "type";
+let lessonId = LESSONS[LESSONS.length - 1].id;
+try { lessonId = localStorage.getItem(LESSON_KEY) || lessonId; } catch (e) {}
+if (!LESSONS.some(lesson => lesson.id === lessonId)) lessonId = LESSONS[LESSONS.length - 1].id;
+
+const app = document.getElementById("app");
+const lessonSelect = document.getElementById("lesson");
+const onlyMistakesBox = document.getElementById("onlyMistakes");
+
+for (const lesson of LESSONS) {
+  const option = document.createElement("option");
+  option.value = lesson.id;
+  option.textContent = lesson.title;
+  lessonSelect.appendChild(option);
+}
+lessonSelect.value = lessonId;
+
+function currentLesson() {
+  return LESSONS.find(lesson => lesson.id === lessonId);
+}
+function wordKey(word) { return lessonId + "|w|" + word.en[0]; }
+function clozeKey(item) { return lessonId + "|c|" + item.q; }
+
+function markMistake(key, wasWrong) {
+  if (wasWrong) mistakes[key] = (mistakes[key] || 0) + 1;
+  else delete mistakes[key];
+  saveMistakes(mistakes);
+  updateMistakeCount();
+}
+
+function updateMistakeCount() {
+  const count = Object.keys(mistakes).filter(key => key.startsWith(lessonId + "|")).length;
+  document.getElementById("mistakeCount").textContent = count ? count : "";
+}
+
+function normalize(text) {
+  return text.toLowerCase()
+    .replace(/[’`]/g, "'")
+    .replace(/[.!?,;:]+$/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/^to /, "");
+}
+function isCorrect(input, answers) {
+  const given = normalize(input);
+  return given.length > 0 && answers.some(answer => normalize(answer) === given);
+}
+
+function shuffle(items) {
+  const copy = items.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function escapeHtml(text) {
+  return String(text).replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+}
+
+const sayVoices = { voice: null };
+function pickVoice() {
+  try {
+    const voices = speechSynthesis.getVoices();
+    sayVoices.voice = voices.find(voice => voice.lang === "en-GB") || voices.find(voice => voice.lang.startsWith("en")) || null;
+  } catch (e) {}
+}
+if ("speechSynthesis" in window) {
+  pickVoice();
+  speechSynthesis.onvoiceschanged = pickVoice;
+}
+// Готовые аудиофайлы (нейроголос) лежат рядом со страницей; если файла нет — голос браузера.
+let AUDIO = {};
+fetch("audio/index.json").then(response => response.ok ? response.json() : {}).then(map => { AUDIO = map; }).catch(() => {});
+let currentAudio = null;
+function speak(text) {
+  const file = AUDIO[text];
+  if (file) {
+    if (currentAudio) currentAudio.pause();
+    currentAudio = new Audio("audio/" + file);
+    currentAudio.play().catch(() => speakSynth(text));
+    return;
+  }
+  speakSynth(text);
+}
+function speakSynth(text) {
+  if (!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "en-GB";
+  utterance.rate = 0.9;
+  if (sayVoices.voice) utterance.voice = sayVoices.voice;
+  speechSynthesis.speak(utterance);
+}
+function sayButton(text) {
+  return `<button class="say" data-say="${escapeHtml(text)}">Слушать</button>`;
+}
+function trLine(word) {
+  return `<div class="tr">${escapeHtml(word.tr || "")}${sayButton(word.en[0].replace(/^to /, ""))}</div>`;
+}
+document.addEventListener("click", event => {
+  const button = event.target.closest("button.say");
+  if (!button) return;
+  event.stopPropagation();
+  speak(button.dataset.say);
+}, true);
+
+function pool(kind) {
+  const lesson = currentLesson();
+  const items = kind === "cloze" ? lesson.cloze : lesson.words;
+  if (!onlyMistakesBox.checked) return items;
+  const keyOf = kind === "cloze" ? clozeKey : wordKey;
+  return items.filter(item => mistakes[keyOf(item)]);
+}
+
+function emptyMistakes() {
+  app.innerHTML = '<div class="card done"><p>Ошибок в этом уроке нет.</p><p class="hint">Снимите галочку «только ошибки», чтобы тренировать все слова.</p></div>';
+}
+
+function renderDone(right, total, restart, extra) {
+  const percent = total ? Math.round(right / total * 100) : 0;
+  app.innerHTML = `<div class="card done">
+    <div class="hint">Готово</div>
+    <div class="score">${right} / ${total}</div>
+    <div class="hint">${percent}% верно</div>
+    ${extra ? `<div class="hint">${escapeHtml(extra)}</div>` : ""}
+    <div class="actions" style="justify-content:center">
+      <button class="primary" id="again">Ещё раз</button>
+    </div>
+  </div>`;
+  document.getElementById("again").onclick = restart;
+}
+
+function startType() {
+  const items = shuffle(pool("words"));
+  if (!items.length) return emptyMistakes();
+  let index = 0;
+  let right = 0;
+
+  function show() {
+    if (index >= items.length) return renderDone(right, items.length, startType);
+    const word = items[index];
+    app.innerHTML = `<div class="card">
+      <div class="progress"><span>${index + 1} / ${items.length}</span><span>верно: ${right}</span></div>
+      <div class="hint">Переведите на английский</div>
+      <div class="prompt">${escapeHtml(word.ru)}</div>
+      <input class="answer" id="answer" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="по-английски">
+      <div class="row">
+        <button class="primary" id="check">Проверить</button>
+        <button id="hintBtn">Первая буква</button>
+        <button id="skip">Не знаю</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+    </div>`;
+    const input = document.getElementById("answer");
+    const feedback = document.getElementById("feedback");
+    let answered = false;
+    input.focus();
+
+    function finish(wasRight) {
+      answered = true;
+      if (wasRight) right++;
+      markMistake(wordKey(word), !wasRight);
+      feedback.className = "feedback " + (wasRight ? "ok" : "bad");
+      feedback.innerHTML = `<div>${wasRight ? "Верно" : "Правильно:"} <b>${escapeHtml(word.en.join(" / "))}</b></div>
+        ${trLine(word)}
+        <div class="full">${escapeHtml(word.ex)}${sayButton(word.ex)}</div>
+        ${word.note ? `<div class="note">${escapeHtml(word.note)}</div>` : ""}`;
+      const checkButton = document.getElementById("check");
+      checkButton.textContent = "Дальше";
+      document.getElementById("hintBtn").disabled = true;
+      document.getElementById("skip").disabled = true;
+      checkButton.focus();
+    }
+    function next() { index++; show(); }
+
+    document.getElementById("check").onclick = () => answered ? next() : finish(isCorrect(input.value, word.en));
+    document.getElementById("skip").onclick = () => finish(false);
+    document.getElementById("hintBtn").onclick = () => { input.placeholder = word.en[0].replace(/^to /, "")[0] + "…"; input.focus(); };
+    input.onkeydown = event => { if (event.key === "Enter") document.getElementById("check").click(); };
+  }
+  show();
+}
+
+function startChoice() {
+  const items = shuffle(pool("words"));
+  if (!items.length) return emptyMistakes();
+  const allWords = currentLesson().words;
+  let index = 0;
+  let right = 0;
+
+  function show() {
+    if (index >= items.length) return renderDone(right, items.length, startChoice);
+    const word = items[index];
+    const distractors = shuffle(allWords.filter(other => other !== word)).slice(0, 3);
+    const options = shuffle([word, ...distractors]);
+    app.innerHTML = `<div class="card">
+      <div class="progress"><span>${index + 1} / ${items.length}</span><span>верно: ${right}</span></div>
+      <div class="hint">Что это значит?</div>
+      <div class="prompt">${escapeHtml(word.en.join(" / "))}</div>
+      ${trLine(word)}
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+      <div class="actions"><button class="primary" id="next" style="display:none">Дальше</button></div>
+    </div>`;
+    const box = document.getElementById("options");
+    const buttons = [];
+    for (const option of options) {
+      const button = document.createElement("button");
+      button.textContent = option.ru;
+      button.onclick = () => {
+        const wasRight = option === word;
+        if (wasRight) right++;
+        markMistake(wordKey(word), !wasRight);
+        for (const other of buttons) {
+          other.disabled = true;
+          if (other.textContent === word.ru) other.classList.add("right");
+        }
+        if (!wasRight) button.classList.add("wrong");
+        const feedback = document.getElementById("feedback");
+        feedback.className = "feedback " + (wasRight ? "ok" : "bad");
+        feedback.innerHTML = `<div class="full">${escapeHtml(word.ex)}${sayButton(word.ex)}</div>${word.note ? `<div class="note">${escapeHtml(word.note)}</div>` : ""}`;
+        const nextButton = document.getElementById("next");
+        nextButton.style.display = "";
+        nextButton.focus();
+      };
+      buttons.push(button);
+      box.appendChild(button);
+    }
+    document.getElementById("next").onclick = () => { index++; show(); };
+  }
+  show();
+}
+
+function startCloze() {
+  const items = shuffle(pool("cloze"));
+  if (!items.length) return emptyMistakes();
+  let index = 0;
+  let right = 0;
+
+  function show() {
+    if (index >= items.length) return renderDone(right, items.length, startCloze);
+    const item = items[index];
+    app.innerHTML = `<div class="card">
+      <div class="progress"><span>${index + 1} / ${items.length}</span><span>верно: ${right}</span></div>
+      <div class="hint">${escapeHtml(item.ru)}</div>
+      <div class="prompt">${escapeHtml(item.q)}</div>
+      <input class="answer" id="answer" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="пропущенное слово">
+      <div class="row">
+        <button class="primary" id="check">Проверить</button>
+        <button id="skip">Не знаю</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+    </div>`;
+    const input = document.getElementById("answer");
+    const feedback = document.getElementById("feedback");
+    let answered = false;
+    input.focus();
+
+    function finish(wasRight) {
+      answered = true;
+      if (wasRight) right++;
+      markMistake(clozeKey(item), !wasRight);
+      const full = item.q.replace("___", item.a[0]);
+      feedback.className = "feedback " + (wasRight ? "ok" : "bad");
+      feedback.innerHTML = `<div>${wasRight ? "Верно" : "Правильно:"} <b>${escapeHtml(item.a.join(" / "))}</b></div>
+        <div class="full">${escapeHtml(full)}${sayButton(full)}</div>
+        ${item.note ? `<div class="note">${escapeHtml(item.note)}</div>` : ""}`;
+      const checkButton = document.getElementById("check");
+      checkButton.textContent = "Дальше";
+      document.getElementById("skip").disabled = true;
+      checkButton.focus();
+    }
+
+    document.getElementById("check").onclick = () => {
+      if (answered) { index++; show(); return; }
+      finish(isCorrect(input.value, item.a));
+    };
+    document.getElementById("skip").onclick = () => finish(false);
+    input.onkeydown = event => { if (event.key === "Enter") document.getElementById("check").click(); };
+  }
+  show();
+}
+
+function startCards() {
+  const items = shuffle(pool("words"));
+  if (!items.length) return emptyMistakes();
+  let index = 0;
+  let showEnglishFirst = false;
+
+  function show() {
+    const word = items[index];
+    let flipped = false;
+    app.innerHTML = `<div class="card flip" id="flip"></div>
+      <div class="actions">
+        <button id="prev">Назад</button>
+        <button class="primary" id="next">Дальше</button>
+        <button id="dir">${showEnglishFirst ? "Сначала EN" : "Сначала RU"}</button>
+        <span class="hint">${index + 1} / ${items.length}</span>
+      </div>`;
+    const flip = document.getElementById("flip");
+    function paint() {
+      const frontRu = !showEnglishFirst;
+      const showRu = flipped ? !frontRu : frontRu;
+      flip.innerHTML = showRu
+        ? `<div class="side">${flipped ? "ответ" : "нажмите, чтобы перевернуть"}</div><div class="big">${escapeHtml(word.ru)}</div>`
+        : `<div class="side">${flipped ? "ответ" : "нажмите, чтобы перевернуть"}</div><div class="big">${escapeHtml(word.en.join(" / "))}</div>${trLine(word)}<div class="ex">${escapeHtml(word.ex)}</div>${word.note && flipped ? `<div class="note">${escapeHtml(word.note)}</div>` : ""}`;
+    }
+    flip.onclick = () => { flipped = !flipped; paint(); };
+    document.getElementById("prev").onclick = () => { index = (index - 1 + items.length) % items.length; show(); };
+    document.getElementById("next").onclick = () => { index = (index + 1) % items.length; show(); };
+    document.getElementById("dir").onclick = () => { showEnglishFirst = !showEnglishFirst; show(); };
+    paint();
+  }
+  show();
+}
+
+function startList() {
+  const lesson = currentLesson();
+  const rows = lesson.words.map(word => `<tr>
+    <td class="en"><span>${escapeHtml(word.en.join(" / "))}</span>${mistakes[wordKey(word)] ? ' <span class="badge">ошибка</span>' : ""}${trLine(word)}</td>
+    <td>${escapeHtml(word.ru)}<div class="hint">${escapeHtml(word.ex)}</div>${word.note ? `<div class="n">${escapeHtml(word.note)}</div>` : ""}</td>
+  </tr>`).join("");
+  app.innerHTML = `<div class="actions" style="margin-top:0;margin-bottom:10px">
+      <button id="toggleEn">Скрыть английский</button>
+      <button id="reset">Сбросить ошибки урока</button>
+    </div>
+    <div class="card" style="padding:8px 12px">
+      <table id="table"><thead><tr><th>English</th><th>Русский, пример, пояснение</th></tr></thead><tbody>${rows}</tbody></table>
+    </div>`;
+  const table = document.getElementById("table");
+  document.getElementById("toggleEn").onclick = event => {
+    table.classList.toggle("hidden-en");
+    event.target.textContent = table.classList.contains("hidden-en") ? "Показать английский" : "Скрыть английский";
+  };
+  table.onclick = event => {
+    const cell = event.target.closest("td.en");
+    if (cell && table.classList.contains("hidden-en")) cell.classList.add("shown");
+  };
+  document.getElementById("reset").onclick = () => {
+    for (const key of Object.keys(mistakes)) if (key.startsWith(lessonId + "|")) delete mistakes[key];
+    saveMistakes(mistakes);
+    updateMistakeCount();
+    startList();
+  };
+}
+
+
+function stripTo(text) { return text.replace(/^to /, ""); }
+
+function startPairs() {
+  const items = shuffle(pool("words"));
+  if (!items.length) return emptyMistakes();
+  const ROUND = 6;
+  let start = 0;
+  let firstTry = 0;
+  let total = 0;
+  const startedAt = Date.now();
+
+  function round() {
+    const batch = items.slice(start, start + ROUND);
+    if (!batch.length) {
+      const seconds = Math.round((Date.now() - startedAt) / 1000);
+      return renderDone(firstTry, total, startPairs, `Время: ${seconds} с. Засчитаны пары, найденные с первой попытки.`);
+    }
+    const left = shuffle(batch);
+    const right = shuffle(batch);
+    const missed = new Set();
+    let selected = null;
+    let found = 0;
+    app.innerHTML = `<div class="card">
+      <div class="progress"><span>Пары: ${Math.min(start + ROUND, items.length)} / ${items.length}</span><span>с первой попытки: ${firstTry}</span></div>
+      <div class="hint">Нажмите слово слева, потом его перевод справа</div>
+      <div class="pairs"><div class="col" id="colEn"></div><div class="col" id="colRu"></div></div>
+    </div>`;
+    const colEn = document.getElementById("colEn");
+    const colRu = document.getElementById("colRu");
+    for (const word of left) {
+      const tile = document.createElement("button");
+      tile.className = "tile";
+      tile.textContent = word.en[0];
+      tile.onclick = () => {
+        if (tile.disabled) return;
+        if (selected) selected.tile.classList.remove("sel");
+        selected = { tile, word };
+        tile.classList.add("sel");
+        speak(stripTo(word.en[0]));
+      };
+      colEn.appendChild(tile);
+    }
+    for (const word of right) {
+      const tile = document.createElement("button");
+      tile.className = "tile";
+      tile.textContent = word.ru;
+      tile.onclick = () => {
+        if (!selected || tile.disabled) return;
+        if (selected.word.ru === word.ru) {
+          for (const done of [selected.tile, tile]) { done.classList.remove("sel"); done.classList.add("right"); done.disabled = true; }
+          total++;
+          if (!missed.has(word)) { firstTry++; markMistake(wordKey(word), false); }
+          selected = null;
+          found++;
+          if (found === batch.length) setTimeout(() => { start += ROUND; round(); }, 500);
+        } else {
+          missed.add(selected.word);
+          markMistake(wordKey(selected.word), true);
+          tile.classList.add("wrong");
+          setTimeout(() => tile.classList.remove("wrong"), 450);
+        }
+      };
+      colRu.appendChild(tile);
+    }
+  }
+  round();
+}
+
+function startScramble() {
+  const items = shuffle(pool("words").filter(word => stripTo(word.en[0]).length <= 22));
+  if (!items.length) return emptyMistakes();
+  let index = 0;
+  let right = 0;
+
+  function show() {
+    if (index >= items.length) return renderDone(right, items.length, startScramble);
+    const word = items[index];
+    const target = stripTo(word.en[0]);
+    const letters = shuffle([...target].map((ch, position) => ({ ch, position })).filter(item => item.ch !== " "));
+    const typed = [];
+    let usedHint = false;
+    let answered = false;
+    app.innerHTML = `<div class="card">
+      <div class="progress"><span>${index + 1} / ${items.length}</span><span>верно: ${right}</span></div>
+      <div class="hint">Соберите слово из букв</div>
+      <div class="prompt">${escapeHtml(word.ru)}</div>
+      <div class="slots" id="slots"></div>
+      <div class="letters" id="letters"></div>
+      <div class="row">
+        <button id="erase">Стереть</button>
+        <button id="hintBtn">Подсказать букву</button>
+        <button id="skip">Не знаю</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <div class="actions"><button class="primary" id="next" style="display:none">Дальше</button></div>
+    </div>`;
+    const slots = document.getElementById("slots");
+    const lettersBox = document.getElementById("letters");
+    const letterButtons = [];
+
+    function paint() {
+      let html = "";
+      let typedIndex = 0;
+      for (const ch of target) {
+        if (ch === " ") { html += '<span class="gap"></span>'; continue; }
+        const item = typed[typedIndex++];
+        html += `<span class="slot">${item ? escapeHtml(item.button.textContent) : ""}</span>`;
+      }
+      slots.innerHTML = html;
+    }
+    function finish(wasRight) {
+      answered = true;
+      if (wasRight) right++;
+      markMistake(wordKey(word), !wasRight);
+      const feedback = document.getElementById("feedback");
+      feedback.className = "feedback " + (wasRight ? "ok" : "bad");
+      const label = wasRight ? "Верно" : (usedHint && typed.length === letters.length ? "Собрано с подсказкой, слово попадёт в ошибки:" : "Правильно:");
+      feedback.innerHTML = `<div>${label} <b>${escapeHtml(target)}</b></div>${trLine(word)}<div class="full">${escapeHtml(word.ex)}</div>`;
+      for (const button of letterButtons) button.disabled = true;
+      for (const id of ["erase", "hintBtn", "skip"]) document.getElementById(id).disabled = true;
+      const next = document.getElementById("next");
+      next.style.display = "";
+      next.focus();
+    }
+    function check() {
+      const built = typed.map(item => item.button.textContent).join("");
+      if (built.length < letters.length) return;
+      const expected = target.replace(/ /g, "");
+      if (built.toLowerCase() === expected.toLowerCase()) finish(!usedHint);
+      else slots.classList.add("shake"), setTimeout(() => slots.classList.remove("shake"), 400);
+    }
+    for (const item of letters) {
+      const button = document.createElement("button");
+      button.className = "letter";
+      button.textContent = item.ch;
+      button.onclick = () => {
+        if (answered || button.disabled) return;
+        button.disabled = true;
+        typed.push({ button });
+        paint();
+        check();
+      };
+      letterButtons.push(button);
+      lettersBox.appendChild(button);
+    }
+    document.getElementById("erase").onclick = () => {
+      const last = typed.pop();
+      if (last) last.button.disabled = false;
+      paint();
+    };
+    document.getElementById("hintBtn").onclick = () => {
+      usedHint = true;
+      const expected = target.replace(/ /g, "");
+      while (typed.length && typed.map(item => item.button.textContent).join("") !== expected.slice(0, typed.length)) {
+        typed.pop().button.disabled = false;
+      }
+      const need = expected[typed.length];
+      const button = letterButtons.find(candidate => !candidate.disabled && candidate.textContent === need);
+      if (button) button.click();
+      else paint();
+    };
+    document.getElementById("skip").onclick = () => finish(false);
+    document.getElementById("next").onclick = () => { index++; show(); };
+    paint();
+  }
+  show();
+}
+
+function startBlitz() {
+  const items = pool("words");
+  const allWords = currentLesson().words;
+  if (!items.length) return emptyMistakes();
+  if (allWords.length < 2) return emptyMistakes();
+  const SECONDS = 60;
+  const bestKey = "english-practice-blitz-" + lessonId;
+  let best = 0;
+  try { best = Number(localStorage.getItem(bestKey)) || 0; } catch (e) {}
+
+  app.innerHTML = `<div class="card done">
+    <div class="hint">Блиц: ${SECONDS} секунд</div>
+    <p>Показывается слово и перевод. Решите быстро: перевод верный или нет.<br>Клавиши: ← неверно, → верно.</p>
+    <div class="hint">Рекорд в этом уроке: ${best}</div>
+    <div class="actions" style="justify-content:center"><button class="primary" id="go">Старт</button></div>
+  </div>`;
+  document.getElementById("go").onclick = run;
+
+  function run() {
+    let score = 0;
+    let wrong = 0;
+    let left = SECONDS;
+    let current = null;
+    app.innerHTML = `<div class="card">
+      <div class="progress"><span id="timer">${left} с</span><span id="score">очки: 0</span></div>
+      <div class="prompt" id="bEn" style="text-align:center"></div>
+      <div class="blitz-ru" id="bRu"></div>
+      <div class="blitz-buttons">
+        <button id="no">Неверно</button>
+        <button id="yes" class="primary">Верно</button>
+      </div>
+      <div class="hint" id="last" style="text-align:center;min-height:24px;margin-top:10px"></div>
+    </div>`;
+    function next() {
+      const word = items[Math.floor(Math.random() * items.length)];
+      const isTrue = Math.random() < 0.5;
+      let shown = word;
+      if (!isTrue) {
+        const others = allWords.filter(other => other.ru !== word.ru);
+        shown = others[Math.floor(Math.random() * others.length)];
+      }
+      current = { word, isTrue: shown.ru === word.ru };
+      document.getElementById("bEn").textContent = word.en[0];
+      document.getElementById("bRu").textContent = shown.ru;
+    }
+    function answer(saidTrue) {
+      if (!current) return;
+      const last = document.getElementById("last");
+      if (saidTrue === current.isTrue) {
+        score++;
+        last.textContent = "";
+      } else {
+        wrong++;
+        markMistake(wordKey(current.word), true);
+        last.textContent = `${current.word.en[0]} — ${current.word.ru}`;
+      }
+      document.getElementById("score").textContent = "очки: " + score;
+      next();
+    }
+    function onKey(event) {
+      if (event.key === "ArrowRight") answer(true);
+      if (event.key === "ArrowLeft") answer(false);
+    }
+    document.getElementById("yes").onclick = () => answer(true);
+    document.getElementById("no").onclick = () => answer(false);
+    document.addEventListener("keydown", onKey);
+    const timer = setInterval(() => {
+      left--;
+      const timerBox = document.getElementById("timer");
+      if (!timerBox) { clearInterval(timer); document.removeEventListener("keydown", onKey); return; }
+      timerBox.textContent = left + " с";
+      if (left <= 0) {
+        clearInterval(timer);
+        document.removeEventListener("keydown", onKey);
+        current = null;
+        const isRecord = score > best;
+        if (isRecord) { try { localStorage.setItem(bestKey, String(score)); } catch (e) {} }
+        renderDone(score, score + wrong, startBlitz, isRecord ? "Новый рекорд!" : `Рекорд: ${best}`);
+      }
+    }, 1000);
+    next();
+  }
+}
+
+function startListen() {
+  if (!("speechSynthesis" in window) && !Object.keys(AUDIO).length) {
+    app.innerHTML = '<div class="card done"><p>Этот браузер не умеет произносить текст. Откройте страницу в Safari или Chrome.</p></div>';
+    return;
+  }
+  const items = shuffle(pool("words"));
+  if (!items.length) return emptyMistakes();
+  let index = 0;
+  let right = 0;
+
+  function show() {
+    if (index >= items.length) return renderDone(right, items.length, startListen);
+    const word = items[index];
+    const spoken = stripTo(word.en[0]);
+    app.innerHTML = `<div class="card">
+      <div class="progress"><span>${index + 1} / ${items.length}</span><span>верно: ${right}</span></div>
+      <div class="hint">Послушайте и напишите по-английски</div>
+      <div class="row" style="margin:10px 0 14px">
+        <button class="primary" id="play">Слушать</button>
+        <button id="slow">Медленно</button>
+      </div>
+      <input class="answer" id="answer" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="что вы услышали">
+      <div class="row">
+        <button class="primary" id="check">Проверить</button>
+        <button id="skip">Не знаю</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+    </div>`;
+    const input = document.getElementById("answer");
+    let answered = false;
+    function say(rate) {
+      const file = AUDIO[spoken];
+      if (file) {
+        if (currentAudio) currentAudio.pause();
+        currentAudio = new Audio("audio/" + file);
+        currentAudio.playbackRate = rate < 0.8 ? 0.7 : 1;
+        currentAudio.play().catch(() => {});
+        return;
+      }
+      if (!("speechSynthesis" in window)) return;
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(spoken);
+      utterance.lang = "en-GB";
+      utterance.rate = rate;
+      if (sayVoices.voice) utterance.voice = sayVoices.voice;
+      speechSynthesis.speak(utterance);
+    }
+    function finish(wasRight) {
+      answered = true;
+      if (wasRight) right++;
+      markMistake(wordKey(word), !wasRight);
+      const feedback = document.getElementById("feedback");
+      feedback.className = "feedback " + (wasRight ? "ok" : "bad");
+      feedback.innerHTML = `<div>${wasRight ? "Верно" : "Правильно:"} <b>${escapeHtml(word.en.join(" / "))}</b> — ${escapeHtml(word.ru)}</div>${trLine(word)}${word.note ? `<div class="note">${escapeHtml(word.note)}</div>` : ""}`;
+      document.getElementById("check").textContent = "Дальше";
+      document.getElementById("skip").disabled = true;
+      document.getElementById("check").focus();
+    }
+    document.getElementById("play").onclick = () => { say(0.9); input.focus(); };
+    document.getElementById("slow").onclick = () => { say(0.55); input.focus(); };
+    document.getElementById("check").onclick = () => {
+      if (answered) { index++; show(); return; }
+      finish(isCorrect(input.value, word.en));
+    };
+    document.getElementById("skip").onclick = () => finish(false);
+    input.onkeydown = event => { if (event.key === "Enter") document.getElementById("check").click(); };
+    setTimeout(() => say(0.9), 200);
+    input.focus();
+  }
+  show();
+}
+
+const MODES = { type: startType, choice: startChoice, cloze: startCloze, cards: startCards, list: startList, pairs: startPairs, scramble: startScramble, blitz: startBlitz, listen: startListen };
+
+function render() { MODES[mode](); }
+
+document.getElementById("tabs").onclick = event => {
+  const button = event.target.closest("button");
+  if (!button) return;
+  mode = button.dataset.mode;
+  for (const tab of document.querySelectorAll("#tabs button")) tab.classList.toggle("active", tab === button);
+  render();
+};
+lessonSelect.onchange = () => {
+  lessonId = lessonSelect.value;
+  try { localStorage.setItem(LESSON_KEY, lessonId); } catch (e) {}
+  updateMistakeCount();
+  render();
+};
+onlyMistakesBox.onchange = render;
+
+updateMistakeCount();
+render();
+
+if (tg && tg.CloudStorage) {
+  try {
+    tg.CloudStorage.getItem(STORE_KEY, (error, value) => {
+      if (error || !value) return;
+      try {
+        const cloud = JSON.parse(value);
+        for (const key of Object.keys(cloud)) mistakes[key] = Math.max(mistakes[key] || 0, cloud[key]);
+        try { localStorage.setItem(STORE_KEY, JSON.stringify(mistakes)); } catch (e) {}
+        updateMistakeCount();
+      } catch (e) {}
+    });
+  } catch (e) {}
+}
+</script>
+</body>
+</html>
